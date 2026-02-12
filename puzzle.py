@@ -1,3 +1,6 @@
+import heapq
+from importlib.resources import path
+
 class PuzzleNode:
     '''
     PuzzleNode
@@ -73,7 +76,7 @@ class Problem:
             for j in range(3):
                 tile = self.goal_state[i][j]
                 self.goal_positions[tile] = (i,j)    
-        print(self.goal_positions)
+        # print(self.goal_positions)
 
         self.nodes_expanded = 0
         self.nodes_generated = 0      
@@ -130,30 +133,92 @@ class Problem:
                     new_h = self.calculate_misplaced_tiles(new_state)
                 
                 new_node = PuzzleNode(new_state, current_node, h=new_h)
-                print(new_node) #TODO: delete new_node and directly append to neighbors ?(for debugging)
+                # print(new_node) #TODO: delete new_node and directly append to neighbors ?(for debugging)
 
                 neighbors.append(new_node)
                 self.nodes_generated += 1
-        print("nodes expanded",self.nodes_expanded,"nodes generated",self.nodes_generated) #TODO: delete (for debugging)
+        # print("nodes expanded",self.nodes_expanded,"nodes generated",self.nodes_generated) #TODO: delete (for debugging)
         return neighbors        
 
 def AStar(problem, initial_state):
     initial_node = PuzzleNode(initial_state)
     initial_node.h = problem.calculate_heuristic(initial_state)
 
-    print(initial_node) # for debugging
+    # print(initial_node) # for debugging
     
-    frontier = [problem.get_neighbors(initial_node)]
-    explored = []
+    # frontier = [problem.get_neighbors(initial_node)]
+    # explored = []
     # TODO: complete A* algorithm
+    frontier = [initial_node]
+    heapq.heapify(frontier)
+    explored = set()
+    max_frontier_size = 1
+    
+    while frontier:
+        max_frontier_size = max(max_frontier_size, len(frontier))
+        current_node = heapq.heappop(frontier)
+        current_state_tuple = tuple(tuple(row) for row in current_node.node_state)
+        
+        if current_node.node_state == problem.goal_state:
+            print("Goal found!")
+            print_solution(current_node, problem, max_frontier_size)
+            return current_node
+        
+        explored.add(current_state_tuple)
+        neighbors = problem.get_neighbors(current_node)
 
+        for neighbor in neighbors:
+            neighbor_state_tuple = tuple(tuple(row) for row in neighbor.node_state)
+            if neighbor_state_tuple not in explored:
+                heapq.heappush(frontier, neighbor)
+                
+    print("No solution found")
+    return None
 
-
+def print_solution(goal_node, problem, max_frontier_size):
+    path = []
+    current = goal_node
+    while current:
+        path.append(current)
+        current = current.parent_node
+        
+    path.reverse()
+    
+    print("Solution found in", len(path) - 1, "steps:")
+    
+    grids_per_row = 5
+    for start_idx in range(0, len(path), grids_per_row):
+        end_idx = min(start_idx + grids_per_row, len(path))
+        chunk = path[start_idx:end_idx]
+        
+        move_labels = "  ".join([f"  Move {i}  " for i in range(start_idx, end_idx)])
+        print(f"\n{move_labels}")
+        
+        f_scores = "  ".join([f" f={node.g + node.h:2d} " for node in chunk])
+        print(f"{f_scores}")
+        
+        for row_idx in range(3):
+            row_str = "    ".join([
+                f"{node.node_state[row_idx][0]}  {node.node_state[row_idx][1]}  {node.node_state[row_idx][2]}"
+                for node in chunk
+            ])
+            print(f"{row_str}")
+        
+    print("\nStatistics:")
+    print(f"Solution depth: {goal_node.g}")
+    print(f"Nodes expanded: {problem.nodes_expanded}")
+    print(f"Nodes generated: {problem.nodes_generated}")
+    print(f"Max frontier size: {max_frontier_size}")
+        
 if __name__ == "__main__":   
     initial_state = [[0,2,3],[1,5,6],[4,7,8]]
     goal_state = [[1,2,3],[4,5,6],[7,8,0]]
+    print("Using Manhattan Distance Heuristic:")
     test_problem = Problem(goal_state, use_manhattan=True)
     test_solve = AStar(test_problem, initial_state)
+    print("\nUsing Misplaced Tiles Heuristic:")
+    test_problem2 = Problem(goal_state, use_manhattan=False)
+    test_solve2 = AStar(test_problem, initial_state)
 
     # TODO: implement user input for init and goal states, with checks to confirm valid states
     # Currently only coded to handle 3x3 boards and must also contain digits 0-8 with no repeats
