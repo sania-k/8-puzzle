@@ -241,7 +241,7 @@ def print_solution(path, problem):
         end_idx = min(start_idx + grids_per_row, len(path))
         chunk = path[start_idx:end_idx]      
         
-        move_labels = " ".join([f"Move {i+1}:    " for i in range(start_idx, end_idx)])
+        move_labels = " ".join([f"Move {i}:    " for i in range(start_idx, end_idx)])
         print(f"\n{move_labels}")
 
         for row_idx in range(3):
@@ -277,8 +277,9 @@ def get_puzzle_board_from_user(prompt="Enter puzzle board"):
     while True: # Loop until valid input
         # Explaining board rules to the user
         print(f"\n\n{prompt}")
-        print("Enter a 8 puzzle board, with each tile value separated by spaces")
-        print("Only values 0-8 are accepted, type out one row at a time, then press enter")
+        print("Enter a 8 puzzle board, with each tile value separated by spaces.")
+        print("Only values 0-8 are accepted, with 0 representing the empty tile.")
+        print("Type out one row of tiles at a time, then press enter to input the next row.")
         print("Example: 1 2 3")
         print("\t 4 5 6")
         print("\t 7 8 0\n")
@@ -336,6 +337,7 @@ if __name__ == "__main__":
     solution = a_star_solve(puzzle_problem, initial_state)
 
     # Print results for the user
+    print("")
     if solution:
         print("Solution Found!")
         print_solution(solution, puzzle_problem)
