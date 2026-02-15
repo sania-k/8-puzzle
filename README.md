@@ -5,3 +5,6 @@ ITCS 6150
 
 To run, download `puzzle.py` and run via terminal with `python puzzle.py`
 You will then be prompted to define the puzzle via terminal, and the program will use A* to attempt to solve it.
+
+To test quickly, download `quick_test.py` and run via terminal with `python quick_test.py`
+You will be given 8 tests printed out in the terminal and also written to `quick_test_results.txt`
