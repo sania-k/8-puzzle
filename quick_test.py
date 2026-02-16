@@ -5,6 +5,7 @@ Automatically saves results to quick_test_results.txt
 """
 
 import sys
+from timeit import default_timer as timer
 from puzzle import Problem, a_star_solve, print_solution
 
 TEST_CASES = [
@@ -66,7 +67,7 @@ def run_test_case(test_case, show_path=False):
     print(f"{'='*70}")
     print(f"Initial: {initial[0]}")
     print(f"         {initial[1]}")
-    print(f"         {initial[2]}")
+    print(f"         {initial[2]}\n")
     print(f"Goal:    {goal[0]}")
     print(f"         {goal[1]}")
     print(f"         {goal[2]}")
@@ -74,12 +75,12 @@ def run_test_case(test_case, show_path=False):
     # Test with Manhattan Distance
     print(f"\n--- Manhattan Distance Heuristic ---")
     problem_manhattan = Problem(goal, use_manhattan=True)
+    start = timer()
     solution_manhattan = a_star_solve(problem_manhattan, initial)
-    
+    end = timer()
+
     if solution_manhattan:
         print(f"[SOLVED] Solution found in {len(solution_manhattan) - 1} moves")
-        print(f"  Nodes expanded: {problem_manhattan.nodes_expanded}")
-        print(f"  Nodes generated: {problem_manhattan.nodes_generated}")
         if show_path:
             print_solution(solution_manhattan, problem_manhattan)
     else:
@@ -87,21 +88,25 @@ def run_test_case(test_case, show_path=False):
         print(f"  Nodes expanded: {problem_manhattan.nodes_expanded}")
         print(f"  Nodes generated: {problem_manhattan.nodes_generated}")
     
+    print(f"  Execution Time: {end - start} seconds")
+
     # Test with Misplaced Tiles
     print(f"\n--- Misplaced Tiles Heuristic ---")
     problem_misplaced = Problem(goal, use_manhattan=False)
+    start = timer()
     solution_misplaced = a_star_solve(problem_misplaced, initial)
+    end = timer()
     
     if solution_misplaced:
         print(f"[SOLVED] Solution found in {len(solution_misplaced) - 1} moves")
-        print(f"  Nodes expanded: {problem_misplaced.nodes_expanded}")
-        print(f"  Nodes generated: {problem_misplaced.nodes_generated}")
         if show_path:
             print_solution(solution_misplaced, problem_misplaced)
     else:
         print("[NO SOLUTION] No solution found")
         print(f"  Nodes expanded: {problem_misplaced.nodes_expanded}")
         print(f"  Nodes generated: {problem_misplaced.nodes_generated}")
+    
+    print(f"  Execution Time: {end - start} seconds")
 
 def quick_test(show_paths=False):
     """
