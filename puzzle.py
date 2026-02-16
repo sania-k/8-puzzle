@@ -39,22 +39,9 @@ class PuzzleNode:
                 if self.node_state[i][j] == 0:
                     return i, j
         raise ValueError("No blank tile found")
-    
-    def puzzle_rows(self):
-        '''
-        Return the puzzle board as a list of row strings with the g, h, and f of the node
-        '''
-        rows = [
-            f"{row[0]}  {row[1]}  {row[2]}"
-            for row in self.node_state
-        ]
-
-        measures = [f"g={self.g}", f"h={self.h}", f"f={self.g + self.h}"]
-
-        return rows + measures
 
     def __lt__(self, other):
-        return (self.g + self.h) < (other.g + other.h)
+        return (self.g + self.h, self.g) < (other.g + other.h, self.g)
     
     def __str__(self):
         result = ""
@@ -261,9 +248,9 @@ def print_solution(path, problem):
         print(f"{f_scores}")
         
     print("\nStatistics:")
-    print(f"Solution depth: {len(path) - 1}")
-    print(f"Nodes expanded: {problem.nodes_expanded}")
-    print(f"Nodes generated: {problem.nodes_generated}")
+    print(f"  Solution depth: {len(path) - 1}")
+    print(f"  Nodes expanded: {problem.nodes_expanded}")
+    print(f"  Nodes generated: {problem.nodes_generated}")
         
 def get_puzzle_board_from_user(prompt="Enter puzzle board"):
     '''
